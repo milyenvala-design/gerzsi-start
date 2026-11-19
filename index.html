@@ -133,7 +133,7 @@ footer a{color:var(--link)}
 
 <form class="bar" id="form" action="https://www.amazon.com/s" method="get" target="_blank" rel="noopener">
   <input type="hidden" name="tag" id="tagf" value="gerzsi-20">
-  <button type="button" class="toggle" id="toggle" aria-label="Switch between Amazon and web search">Amazon</button>
+  <button type="button" class="toggle" id="toggle" aria-label="Switch between Amazon and Google search">Amazon</button>
   <input type="search" name="k" id="q" aria-label="Search" autocomplete="off" autofocus placeholder="Search Amazon">
   <button type="submit" class="go" aria-label="Search"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
 </form>
@@ -187,10 +187,10 @@ var form=$("form"),qi=$("q"),tagf=$("tagf"),tg=$("toggle");
 var picks=[];
 function mode(m){
   var a=m==="amz";
-  tg.textContent=a?"Amazon":"Web";tg.className="toggle"+(a?"":" web");
-  form.action=a?"https://www.amazon.com/s":"https://duckduckgo.com/";
+  tg.textContent=a?"Amazon":"Google";tg.className="toggle"+(a?"":" web");
+  form.action=a?"https://www.amazon.com/s":"https://www.google.com/search";
   qi.name=a?"k":"q";tagf.disabled=!a;form.target=a?"_blank":"_self";
-  qi.placeholder=a?(picks[0]?"Search Amazon, try “"+picks[0][2]+"”":"Search Amazon"):"Search the web";
+  qi.placeholder=a?(picks[0]?"Search Amazon, try “"+picks[0][2]+"”":"Search Amazon"):"Search Google";
   ls("gz-mode",m);
 }
 tg.onclick=function(){mode(tg.className.indexOf("web")>-1?"amz":"web");qi.focus();};
