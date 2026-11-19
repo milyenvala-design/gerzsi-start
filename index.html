@@ -8,12 +8,13 @@
 <meta name="description" content="Your daily start page: search Amazon, then scroll today's headlines, scores and popular picks.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#1D1E26;--surface:#262833;--field:#2C2E3A;--line:#3A3C4A;--text:#E9EAEE;--muted:#A5A9B8;--link:#8AB4F8;
   --mark:#EBC9B5;--shop:#FF9A1F;--shop-ink:#2A1700;
-  --font:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+  --font:"Geist","Inter","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+  --disp:"Bricolage Grotesque","Geist","Segoe UI",system-ui,sans-serif;
 }
 @media(prefers-color-scheme:light){:root{--bg:#FFFFFF;--surface:#F4F5F8;--field:#F0F2F6;--line:#DCDFE6;--text:#1D1F27;--muted:#5E6474;--link:#1A59D6;--mark:#B8613B}}
 *{box-sizing:border-box}
@@ -26,7 +27,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 
 /* header + search */
 .top{display:flex;justify-content:space-between;align-items:center;padding:26px 20px 14px}
-.mark{font-size:2.8rem;font-weight:700;letter-spacing:-.045em;color:var(--mark);line-height:1}
+.mark{font-family:var(--disp);font-size:2.8rem;font-weight:700;letter-spacing:-.04em;color:var(--mark);line-height:1}
 .mark small{font-size:.5em;margin-left:4px;letter-spacing:0}
 .me{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-size:1.5rem;background:var(--surface);border:3px solid transparent;background-clip:padding-box;box-shadow:0 0 0 3px #4285F4 inset;}
 .me{box-shadow:none;border:3px solid;border-color:#34A853 #FBBC05 #EA4335 #4285F4}
@@ -42,7 +43,7 @@ svg{display:block}
 
 .hero{background:radial-gradient(95% 100% at 50% 0%,var(--glow,transparent),transparent 72%)}
 .greet{padding:6px 20px 16px}
-.g1{font-size:1.95rem;font-weight:700;letter-spacing:-.035em;line-height:1.1}
+.g1{font-family:var(--disp);font-size:2rem;font-weight:700;letter-spacing:-.03em;line-height:1.1}
 .g2{color:var(--muted);font-size:1.08rem;margin-top:6px;max-width:34em}
 .fx{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:2}
 .fx span{position:absolute;top:-8vh;opacity:.55;animation:fall linear infinite;will-change:transform}
@@ -55,7 +56,7 @@ svg{display:block}
 .mini{position:relative;flex:none;scroll-snap-align:start;width:176px;min-height:104px;border:1.5px solid var(--line);border-radius:24px;padding:14px 16px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
 .mini .l{font-size:1.02rem;color:var(--text)}
 .mini .r{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.mini .big{font-size:1.9rem;font-weight:500;letter-spacing:-.02em}
+.mini .big{font-family:var(--disp);font-size:2rem;font-weight:700;letter-spacing:-.02em}
 .mini .em{font-size:2rem;line-height:1}
 .mini .s{font-size:.9rem;color:var(--muted)}
 .mini .pill{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--line);font-size:1.3rem}
@@ -86,10 +87,10 @@ svg{display:block}
 .card{display:block;border-bottom:1px solid var(--line);position:relative}
 .card .body{display:block;padding:0}
 .lead img.hero{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:var(--surface)}
-.lead .title{display:block;padding:16px 20px 4px;font-size:1.4rem;font-weight:700;line-height:1.28;letter-spacing:-.02em}
+.lead .title{display:block;padding:16px 20px 4px;font-family:var(--disp);font-size:1.45rem;font-weight:700;line-height:1.22;letter-spacing:-.015em}
 .row{display:grid;grid-template-columns:minmax(0,1fr) 104px;gap:16px;padding:20px 20px 4px;align-items:start}
 .row.noimg{grid-template-columns:1fr}
-.row .title{font-size:1.1rem;font-weight:600;line-height:1.35;letter-spacing:-.01em}
+.row .title{font-family:var(--disp);font-size:1.15rem;font-weight:700;line-height:1.28;letter-spacing:-.01em}
 .row img{width:104px;height:104px;object-fit:cover;border-radius:18px;background:var(--surface)}
 .title{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .meta{display:flex;align-items:center;gap:10px;padding:14px 20px 18px;font-size:.93rem;color:var(--muted)}
@@ -104,7 +105,7 @@ svg{display:block}
 /* shop card */
 .shop .tile{margin:20px 20px 0;border-radius:24px;padding:26px 22px;display:flex;align-items:center;gap:18px;min-height:120px}
 .shop .tile .em{font-size:3.4rem;line-height:1}
-.shop .tile b{display:block;font-size:1.35rem;font-weight:600;line-height:1.2;color:#1B1B1F}
+.shop .tile b{display:block;font-family:var(--disp);font-size:1.4rem;font-weight:700;line-height:1.15;color:#1B1B1F}
 .shop .tile span{color:rgba(27,27,31,.72);font-size:.95rem}
 
 /* score card */
