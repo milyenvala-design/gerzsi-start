@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Gerzsi – Amazon search, news, scores &amp; weather</title>
+<meta name="description" content="Your daily start page: search Amazon, then scroll today's headlines, scores and popular picks.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1D1E26;--surface:#262833;--field:#2C2E3A;--line:#3A3C4A;--text:#E9EAEE;--muted:#A5A9B8;--link:#8AB4F8;
+  --mark:#EBC9B5;--shop:#FF9A1F;--shop-ink:#2A1700;
+  --font:"Figtree","Google Sans","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+}
+@media(prefers-color-scheme:light){:root{--bg:#FFFFFF;--surface:#F4F5F8;--field:#F0F2F6;--line:#DCDFE6;--text:#1D1F27;--muted:#5E6474;--link:#1A59D6;--mark:#B8613B}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.4}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+:focus-visible{outline:3px solid var(--link);outline-offset:2px;border-radius:10px}
+.wrap{max-width:720px;margin:0 auto;padding:0 0 60px}
+
+/* header + search */
+.top{display:flex;justify-content:space-between;align-items:center;padding:26px 20px 14px}
+.mark{font-size:2.9rem;font-weight:600;letter-spacing:-.04em;color:var(--mark);line-height:1}
+.mark small{font-size:.5em;margin-left:4px;letter-spacing:0}
+.me{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-size:1.5rem;background:var(--surface);border:3px solid transparent;background-clip:padding-box;box-shadow:0 0 0 3px #4285F4 inset;}
+.me{box-shadow:none;border:3px solid;border-color:#34A853 #FBBC05 #EA4335 #4285F4}
+.bar{display:flex;align-items:center;gap:8px;margin:0 20px;background:var(--field);border-radius:999px;padding:6px 6px 6px 8px;border:1px solid transparent}
+.bar:focus-within{border-color:var(--link)}
+.bar .toggle{flex:none;background:var(--shop);color:var(--shop-ink);font-weight:700;font-size:.88rem;border-radius:999px;padding:9px 14px}
+.bar .toggle.web{background:var(--line);color:var(--text)}
+.bar input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text);font:inherit;font-size:1.05rem;padding:10px 4px}
+.bar input::placeholder{color:var(--muted)}
+.bar .go{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--text);color:var(--bg)}
+svg{display:block}
+
+/* top cards row */
+.strip{display:flex;gap:12px;overflow-x:auto;padding:18px 20px 6px;scrollbar-width:none;scroll-snap-type:x proximity}
+.strip::-webkit-scrollbar{display:none}
+.mini{position:relative;flex:none;scroll-snap-align:start;width:176px;min-height:104px;border:1.5px solid var(--line);border-radius:24px;padding:14px 16px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
+.mini .l{font-size:1.02rem;color:var(--text)}
+.mini .r{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mini .big{font-size:1.9rem;font-weight:500;letter-spacing:-.02em}
+.mini .em{font-size:2rem;line-height:1}
+.mini .s{font-size:.9rem;color:var(--muted)}
+.mini .pill{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--line);font-size:1.3rem}
+.mini select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:16px}
+.mini.hot{background:var(--shop);border-color:var(--shop);color:var(--shop-ink)}
+.mini.hot .l,.mini.hot .s{color:var(--shop-ink)}
+
+/* filter chips */
+.filters{display:flex;gap:8px;padding:14px 20px 4px;overflow-x:auto;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.filters button{flex:none;border:1.5px solid var(--line);border-radius:999px;padding:7px 16px;font-weight:600;font-size:.92rem;color:var(--muted)}
+.filters button[aria-pressed=true]{background:var(--text);color:var(--bg);border-color:var(--text)}
+
+
+.custom{margin:10px 20px 4px;border:1.5px solid var(--line);border-radius:22px;padding:16px}
+.custom[hidden]{display:none}
+.custom h3{margin:0 0 4px;font-size:1.05rem;font-weight:600}
+.custom p{margin:0 0 12px;color:var(--muted);font-size:.9rem}
+.topics{display:flex;flex-wrap:wrap;gap:8px}
+.topics button{border:1.5px solid var(--line);border-radius:999px;padding:7px 14px;font-weight:500;font-size:.92rem;color:var(--muted)}
+.topics button[aria-pressed=true]{background:var(--text);color:var(--bg);border-color:var(--text)}
+.custom .loc{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:.92rem;color:var(--muted)}
+.custom select{font:inherit;background:var(--field);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:7px 12px}
+.filters .gear{margin-left:auto;border-style:dashed}
+
+/* feed */
+.feed{margin-top:8px}
+.card{display:block;border-bottom:1px solid var(--line);position:relative}
+.card .body{display:block;padding:0}
+.lead img.hero{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:var(--surface)}
+.lead .title{display:block;padding:16px 20px 4px;font-size:1.5rem;font-weight:500;line-height:1.25;letter-spacing:-.01em}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 104px;gap:16px;padding:20px 20px 4px;align-items:start}
+.row.noimg{grid-template-columns:1fr}
+.row .title{font-size:1.18rem;font-weight:500;line-height:1.3}
+.row img{width:104px;height:104px;object-fit:cover;border-radius:18px;background:var(--surface)}
+.title{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.meta{display:flex;align-items:center;gap:10px;padding:14px 20px 18px;font-size:.93rem;color:var(--muted)}
+.av{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:.8rem;font-weight:700;color:#fff}
+.meta .src{color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.meta .sp{flex:1}
+.ic{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--text)}
+.ic:hover{background:var(--surface)}
+.ic[aria-pressed=true]{color:#F06292}
+.ic[aria-pressed=true] svg{fill:#F06292}
+
+/* shop card */
+.shop .tile{margin:20px 20px 0;border-radius:24px;padding:26px 22px;display:flex;align-items:center;gap:18px;min-height:120px}
+.shop .tile .em{font-size:3.4rem;line-height:1}
+.shop .tile b{display:block;font-size:1.35rem;font-weight:600;line-height:1.2;color:#1B1B1F}
+.shop .tile span{color:rgba(27,27,31,.72);font-size:.95rem}
+
+/* score card */
+.score{margin:18px 20px 0;background:var(--surface);border-radius:22px;padding:14px 18px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center}
+.tm{display:flex;align-items:center;gap:10px;font-weight:600;font-size:1.05rem;line-height:1.9}
+.tm img{width:26px;height:26px;object-fit:contain}
+.tm .sc{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:700;padding-left:14px}
+.tm.lose{color:var(--muted);font-weight:500}
+.score .st{font-size:.88rem;color:var(--muted);text-align:right;max-width:120px}
+
+/* skeleton + misc */
+.sk{height:96px;margin:20px;border-radius:18px;background:var(--surface)}
+.more{display:block;margin:22px auto 0;border:1.5px solid var(--line);border-radius:999px;padding:11px 28px;font-weight:600}
+.note{padding:16px 20px;color:var(--muted);font-size:.95rem}
+.note a{color:var(--link);font-weight:600}
+.sites{display:flex;flex-wrap:wrap;gap:8px;padding:26px 20px 0}
+.sites a{border:1.5px solid var(--line);border-radius:999px;padding:7px 15px;font-size:.9rem;font-weight:500}
+.sites a:hover{border-color:var(--link);color:var(--link)}
+footer{padding:20px;color:var(--muted);font-size:.82rem;line-height:1.5}
+footer a{color:var(--link)}
+.menu{position:absolute;right:16px;bottom:56px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:6px;z-index:5;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.menu button{display:block;width:100%;text-align:left;padding:10px 16px;border-radius:10px;font-weight:500}
+.menu button:hover{background:var(--line)}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 20px;border-radius:999px;font-weight:600;font-size:.92rem;z-index:9}
+.toast[hidden]{display:none}
+@media(min-width:760px){.lead .title{font-size:1.7rem}.mini{width:196px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <a class="mark" href="https://gerzsi.com/" target="_blank" rel="noopener" aria-label="Gerzsi">Gerzsi<small>🦫</small></a>
+  <a class="me" href="https://gerzsi.com/" target="_blank" rel="noopener" aria-label="Visit gerzsi.com">🍳</a>
+</header>
+
+<form class="bar" id="form" action="https://www.amazon.com/s" method="get" target="_blank" rel="noopener">
+  <input type="hidden" name="tag" id="tagf" value="gerzsi-20">
+  <button type="button" class="toggle" id="toggle" aria-label="Switch between Amazon and web search">Amazon</button>
+  <input type="search" name="k" id="q" aria-label="Search" autocomplete="off" autofocus placeholder="Search Amazon">
+  <button type="submit" class="go" aria-label="Search"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+</form>
+
+<div class="strip" id="strip">
+  <div class="mini" id="c-wx"><span class="l">New York</span><div class="r"><span class="big">–</span></div></div>
+  <div class="mini" id="c-sun"><span class="l">Tomorrow's sunrise</span><div class="r"><span class="big">–</span></div></div>
+  <a class="mini hot" id="c-ev" href="#" target="_blank" rel="sponsored nofollow noopener"><span class="l">…</span><div class="r"><span class="big">–</span></div></a>
+  <a class="mini" id="c-deals" href="#" target="_blank" rel="sponsored nofollow noopener"><span class="l">Today's Deals</span><div class="r"><span class="s">On Amazon</span><span class="pill">🔥</span></div></a>
+</div>
+
+<div class="filters" id="filters" role="group" aria-label="Filter the feed"></div>
+
+<div class="custom" id="custom" hidden></div>
+
+<main class="feed" id="feed" aria-live="polite"></main>
+
+<nav class="sites" id="sites" aria-label="Popular sites"></nav>
+<footer>
+  As an Amazon Associate I earn from qualifying purchases. Amazon links on this page are affiliate links and cost you nothing extra.
+  Headlines and scores belong to their publishers and open on their own sites.
+  Made by Chef Tamás and Gerzsi the beaver · <a href="https://gerzsi.com/" target="_blank" rel="noopener">gerzsi.com</a>
+</footer>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+var TAG="gerzsi-20"; // Amazon Associates tracking ID
+var $=function(id){return document.getElementById(id);};
+function el(tag,txt,cls){var e=document.createElement(tag);if(txt!=null)e.textContent=txt;if(cls)e.className=cls;return e;}
+function amz(path,params){var p=[];for(var k in (params||{}))p.push(encodeURIComponent(k)+"="+encodeURIComponent(params[k]));p.push("tag="+TAG);return "https://www.amazon.com"+path+"?"+p.join("&");}
+function search(q){return amz("/s",{k:q});}
+function safeImg(u){return typeof u==="string"&&/^https:\/\//.test(u)?u:"";}
+function safeLink(u){return typeof u==="string"&&/^https?:\/\//.test(u)?u:"";}
+function img(src,cls){var i=document.createElement("img");i.src=src;i.alt="";i.loading="lazy";i.referrerPolicy="no-referrer";if(cls)i.className=cls;i.onerror=function(){i.remove();};return i;}
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){}return null;}
+function svg(path,fill){var s='<svg width="22" height="22" viewBox="0 0 24 24" fill="'+(fill||"none")+'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+path+'</svg>';return s;}
+var ICON={
+  heart:svg('<path d="M12 21s-7-4.4-9.3-8.6C1 9 2.8 5.5 6.3 5.5c2 0 3.5 1.1 4.2 2.4l1.5 1.8 1.5-1.8c.7-1.3 2.2-2.4 4.2-2.4 3.5 0 5.3 3.5 3.6 6.9C19 16.6 12 21 12 21z"/>'),
+  share:svg('<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>'),
+  more:svg('<circle cx="12" cy="5" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="19" r="1.4" fill="currentColor"/>')
+};
+
+var now=new Date(),month=now.getMonth()+1;
+var ymd=now.getFullYear()*10000+month*100+now.getDate();
+
+/* ---------- search mode ---------- */
+var form=$("form"),qi=$("q"),tagf=$("tagf"),tg=$("toggle");
+var picks=[];
+function mode(m){
+  var a=m==="amz";
+  tg.textContent=a?"Amazon":"Web";tg.className="toggle"+(a?"":" web");
+  form.action=a?"https://www.amazon.com/s":"https://duckduckgo.com/";
+  qi.name=a?"k":"q";tagf.disabled=!a;form.target=a?"_blank":"_self";
+  qi.placeholder=a?(picks[0]?"Search Amazon, try “"+picks[0][2]+"”":"Search Amazon"):"Search the web";
+  ls("gz-mode",m);
+}
+tg.onclick=function(){mode(tg.className.indexOf("web")>-1?"amz":"web");qi.focus();};
+
+/* ---------- favorites pool (Amazon picks) ---------- */
+var POOL=[
+["🍟","Air fryers","air fryer"],["🥤","Tumblers","insulated tumbler 40 oz"],["🔥","Grills","outdoor grill",[4,10]],["🏓","Pickleball","pickleball paddle set"],
+["⛺","Camping","camping tent",[4,10]],["🐕","Dog toys","dog toys"],["🐈","Cat trees","cat tree"],["🧱","Building sets","building block sets"],
+["🧊","Coolers","cooler",[4,10]],["📚","Bestselling books","best selling books"],["🧩","Puzzles","jigsaw puzzle 1000 pieces"],["🎲","Board games","family board games"],
+["🧘","Yoga mats","yoga mat"],["💪","Dumbbells","adjustable dumbbells"],["🛋️","Weighted blankets","weighted blanket"],["💡","LED lights","led strip lights"],
+["🤖","Robot vacuums","robot vacuum"],["☕","Coffee makers","coffee maker"],["🍳","Cast iron","cast iron skillet"],["🔥","Fire pits","fire pit",[4,10]],
+["🏖️","Beach chairs","beach chair",[5,9]],["🌞","Sunscreen","sunscreen spf 50",[5,9]],["🎣","Fishing","fishing rod combo"],["🏈","Football","football",[8,2]],
+["🍔","Tailgating","tailgate gear",[8,1]],["⚾","Baseball gloves","baseball glove",[2,8]],["🏀","Basketball","basketball"],["⛳","Golf","golf accessories",[3,10]],
+["🧢","Trucker hats","trucker hat"],["🥾","Work boots","work boots"],["🧥","Flannels","flannel shirt",[9,3]],["🕯️","Candles","scented candles"],
+["🔧","Drill sets","cordless drill set"],["🚗","Car organizers","car organizer"],["🛻","Truck accessories","truck bed accessories"],["🌱","Garden tools","garden tools",[3,9]],
+["🧹","Stick vacuums","cordless vacuum"],["🎧","Earbuds","wireless earbuds"],["📖","E-readers","kindle e-reader"],["🔌","Smart plugs","smart plug"],
+["📷","Video doorbells","video doorbell"],["🥩","Meat thermometers","meat thermometer"],["🍞","Bread makers","bread machine"],["🥗","Meal prep","meal prep containers"],
+["🍿","Popcorn makers","popcorn machine"],["🧃","Water bottles","water bottle"],["🏕️","Hammocks","camping hammock",[4,9]],["🚴","Bike gear","bike accessories",[3,10]],
+["❄️","Snow shovels","snow shovel",[10,3]],["🔥","Space heaters","space heater",[10,3]],["🧤","Winter gloves","winter gloves",[10,3]],["🎿","Ski gear","ski goggles",[11,3]],
+["🎄","Christmas lights","christmas lights",[10,12]],["🎃","Halloween","halloween costumes",[9,10]],["🏫","School supplies","school supplies",[7,9]],["🎒","Backpacks","backpack"],
+["🍼","Baby essentials","baby essentials"],["🧸","Kids' toys","toys for kids"],["🎨","Art supplies","art supplies"],["🎸","Guitar gear","guitar accessories"],
+["🎮","Gaming","gaming accessories"],["🧴","Skincare","skincare"],["🪥","Electric toothbrushes","electric toothbrush"],["🧂","Spice sets","spice set"],
+["🍲","Slow cookers","slow cooker"],["🥘","Dutch ovens","dutch oven"],["🔪","Chef's knives","chef knife"],["🍕","Pizza ovens","pizza oven"],
+["🥓","Griddles","flat top griddle"],["🧊","Ice makers","countertop ice maker",[5,9]]
+];
+var TILE=["#FFD8A8","#BFE3C8","#BBD6F7","#F6C3D0","#E0D2F5","#FBE79C","#C5E8EA","#F5CDB8"];
+function seedFrom(n){return function(){n|=0;n=n+0x6D2B79F5|0;var t=Math.imul(n^n>>>15,1|n);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function inSeason(r,m){if(!r)return true;return r[0]<=r[1]?(m>=r[0]&&m<=r[1]):(m>=r[0]||m<=r[1]);}
+function shuffle(a,rand){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(rand()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+picks=shuffle(POOL.filter(function(x){return inSeason(x[3],month);}),seedFrom(ymd)); // same order for everyone on the same day
+
+/* ---------- US shopping calendar ---------- */
+function nth(y,m,wd,n){var d=new Date(y,m,1),c=0;while(true){if(d.getDay()===wd){c++;if(c===n)return new Date(y,m,d.getDate());}d.setDate(d.getDate()+1);}}
+function lastDay(y,m,wd){var d=new Date(y,m+1,0);while(d.getDay()!==wd)d.setDate(d.getDate()-1);return d;}
+function easter(y){var a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return new Date(y,mo-1,da);}
+function events(y){var tg=nth(y,10,4,4);return [
+{n:"New Year's",d:new Date(y,0,1),e:"🎆",q:"new year party supplies"},{n:"Super Bowl",d:nth(y,1,0,2),e:"🏈",q:"super bowl party supplies"},
+{n:"Valentine's Day",d:new Date(y,1,14),e:"💝",q:"valentines day gifts"},{n:"St. Patrick's Day",d:new Date(y,2,17),e:"🍀",q:"st patricks day decorations"},
+{n:"Easter",d:easter(y),e:"🐣",q:"easter basket"},{n:"Mother's Day",d:nth(y,4,0,2),e:"💐",q:"mothers day gifts"},
+{n:"Memorial Day",d:lastDay(y,4,1),e:"🇺🇸",q:"memorial day grill"},{n:"Father's Day",d:nth(y,5,0,3),e:"🧔",q:"fathers day gifts"},
+{n:"Fourth of July",d:new Date(y,6,4),e:"🎆",q:"fourth of july decorations"},{n:"Labor Day",d:nth(y,8,1,1),e:"🌭",q:"labor day grilling"},
+{n:"Halloween",d:new Date(y,9,31),e:"🎃",q:"halloween decorations"},{n:"Thanksgiving",d:tg,e:"🦃",q:"thanksgiving kitchen essentials"},
+{n:"Black Friday",d:new Date(y,10,tg.getDate()+1),e:"🛍️",path:"/gp/goldbox"},{n:"Cyber Monday",d:new Date(y,10,tg.getDate()+4),e:"💻",path:"/gp/goldbox"},
+{n:"Christmas",d:new Date(y,11,25),e:"🎄",q:"christmas gifts"}];}
+(function(){
+  var today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  var list=events(now.getFullYear()).concat(events(now.getFullYear()+1)).filter(function(x){return x.d>=today;}).sort(function(a,b){return a.d-b.d;});
+  var ev=list[0],d=Math.round((ev.d-today)/86400000),c=$("c-ev");
+  c.innerHTML="";c.appendChild(el("span",ev.n,"l"));
+  var r=el("div",null,"r");r.appendChild(el("span",d===0?"Today":d+(d===1?" day":" days"),"big"));r.appendChild(el("span",ev.e,"em"));c.appendChild(r);
+  c.href=ev.path?amz(ev.path):search(ev.q);
+  $("c-deals").href=amz("/gp/goldbox");
+})();
+
+/* ---------- data helpers ---------- */
+function cget(k,mins){try{var o=JSON.parse(sessionStorage.getItem(k));if(o&&Date.now()-o.t<mins*60000)return o.v;}catch(e){}return null;}
+function cset(k,v){try{sessionStorage.setItem(k,JSON.stringify({t:Date.now(),v:v}));}catch(e){}}
+function getJSON(url,key,mins){
+  var c=cget(key,mins);if(c)return Promise.resolve(c);
+  var ctl=("AbortController" in window)?new AbortController():null;
+  var to=setTimeout(function(){if(ctl)ctl.abort();},9000);
+  return fetch(url,ctl?{signal:ctl.signal}:{}).then(function(r){clearTimeout(to);if(!r.ok)throw new Error(r.status);return r.json();}).then(function(j){cset(key,j);return j;});
+}
+function ago(t){if(!t)return "";var m=Math.round((Date.now()-t)/60000);if(m<1)return "now";if(m<60)return m+" min";var h=Math.round(m/60);if(h<24)return h+" h";return Math.round(h/24)+" d";}
+
+/* ---------- weather + sunrise ---------- */
+var CITIES=[["New York",40.71,-74.01],["Los Angeles",34.05,-118.24],["Chicago",41.88,-87.63],["Houston",29.76,-95.37],["Dallas",32.78,-96.8],["Atlanta",33.75,-84.39],["Miami",25.76,-80.19],["Denver",39.74,-104.99],["Phoenix",33.45,-112.07],["Seattle",47.61,-122.33],["Boston",42.36,-71.06],["Nashville",36.16,-86.78]];
+var WX={0:"☀️",1:"🌤️",2:"⛅",3:"☁️",45:"🌫️",48:"🌫️",51:"🌦️",53:"🌦️",55:"🌦️",56:"🌧️",57:"🌧️",61:"🌧️",63:"🌧️",65:"🌧️",66:"🌧️",67:"🌧️",71:"🌨️",73:"❄️",75:"❄️",77:"❄️",80:"🌦️",81:"🌧️",82:"⛈️",85:"🌨️",86:"❄️",95:"⛈️",96:"⛈️",99:"⛈️"};
+function clock12(iso){var m=/T(\d\d):(\d\d)/.exec(iso||"");if(!m)return "–";var h=+m[1],ap=h>=12?"PM":"AM";h=h%12||12;return h+":"+m[2]+" "+ap;}
+function wxDraw(lat,lon,label){
+  var url="https://api.open-meteo.com/v1/forecast?latitude="+lat+"&longitude="+lon+"&current=temperature_2m,weather_code&daily=precipitation_probability_max,sunrise&temperature_unit=fahrenheit&timezone=auto&forecast_days=2";
+  getJSON(url,"wx"+lat+","+lon,15).then(function(j){
+    var c=$("c-wx"),sel=c.querySelector("select");c.innerHTML="";
+    c.appendChild(el("span",label,"l"));
+    var r=el("div",null,"r");r.appendChild(el("span",Math.round(j.current.temperature_2m)+"°","big"));
+    r.appendChild(el("span",WX[j.current.weather_code]||"🌡️","em"));c.appendChild(r);
+    var p=j.daily&&j.daily.precipitation_probability_max&&j.daily.precipitation_probability_max[0];
+    if(p!=null)c.appendChild(el("span","Rain chance "+p+"%","s"));
+    if(sel)c.appendChild(sel);
+    var s=$("c-sun");s.innerHTML="";s.appendChild(el("span","Tomorrow's sunrise","l"));
+    var rr=el("div",null,"r");rr.appendChild(el("span",clock12(j.daily.sunrise&&j.daily.sunrise[1]),"big"));rr.appendChild(el("span","🌅","pill"));s.appendChild(rr);
+  }).catch(function(){var c=$("c-wx");var sel=c.querySelector("select");c.innerHTML="";c.appendChild(el("span",label,"l"));var a=el("span","Weather unavailable","s");c.appendChild(a);if(sel)c.appendChild(sel);});
+}
+(function(){
+  var c=$("c-wx"),sel=document.createElement("select");sel.setAttribute("aria-label","Choose city");
+  var o=el("option","📍 My location");o.value="geo";sel.appendChild(o);
+  CITIES.forEach(function(x,i){var op=el("option",x[0]);op.value=i;sel.appendChild(op);});
+  c.appendChild(sel);
+  function go(v){
+    ls("gz-city",v);
+    if(v==="geo"){
+      if(!navigator.geolocation){sel.value="0";go("0");return;}
+      navigator.geolocation.getCurrentPosition(function(p){wxDraw(p.coords.latitude.toFixed(2),p.coords.longitude.toFixed(2),"Your location");},function(){sel.value="0";go("0");},{timeout:6000,maximumAge:3600000});
+    }else{var x=CITIES[+v];wxDraw(x[1],x[2],x[0]);}
+  }
+  var v=ls("gz-city")||"0";sel.value=v;if(sel.value!==v){v="0";sel.value="0";}
+  sel.onchange=function(){go(sel.value);};go(v);
+})();
+
+/* ---------- feed state ---------- */
+var state={topics:{},done:{},failed:{},sports:[],sportsDone:false,filter:ls("gz-filter")||"all",limit:12,openMenu:null};
+var hidden=[],liked=[];
+try{hidden=JSON.parse(ls("gz-hidden")||"[]");liked=JSON.parse(ls("gz-liked")||"[]");}catch(e){}
+
+
+/* ---------- topics (what Americans read) ---------- */
+function F(name,url,max){return {name:name,url:url,max:max||6};}
+function GN(q){return {name:"",url:"https://news.google.com/rss/search?q="+encodeURIComponent(q)+"&hl=en-US&gl=US&ceid=US:en",gn:1,max:8};}
+function GT(t){return {name:"",url:"https://news.google.com/rss/headlines/section/topic/"+t+"?hl=en-US&gl=US&ceid=US:en",gn:1,max:8};}
+var T=[
+{id:"top",e:"📰",n:"Top stories",on:1,feeds:[F("NPR","https://feeds.npr.org/1001/rss.xml"),F("CBS News","https://www.cbsnews.com/latest/rss/main"),F("ABC News","https://abcnews.go.com/abcnews/topstories"),F("BBC","https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml")]},
+{id:"local",e:"📍",n:"Local news",on:1,local:1},
+{id:"sports",e:"🏟️",n:"Sports",on:1,feeds:[F("ESPN","https://www.espn.com/espn/rss/news"),F("CBS Sports","https://www.cbssports.com/rss/headlines/")]},
+{id:"ent",e:"🎬",n:"Entertainment",on:1,feeds:[GT("ENTERTAINMENT"),F("Variety","https://variety.com/feed/")]},
+{id:"money",e:"💵",n:"Money",on:1,feeds:[F("CNBC","https://www.cnbc.com/id/100003114/device/rss/rss.html"),F("NPR","https://feeds.npr.org/1006/rss.xml")]},
+{id:"gerzsi",e:"🦫",n:"From Gerzsi",on:1,feeds:[F("Gerzsi","https://gerzsi.com/feed/",3)]},
+{id:"politics",e:"🏛️",n:"Politics",feeds:[F("NPR","https://feeds.npr.org/1014/rss.xml"),F("CBS News","https://www.cbsnews.com/latest/rss/politics"),F("ABC News","https://abcnews.go.com/abcnews/politicsheadlines")]},
+{id:"tech",e:"💻",n:"Tech",feeds:[F("The Verge","https://www.theverge.com/rss/index.xml"),F("TechCrunch","https://techcrunch.com/feed/"),F("Ars Technica","https://feeds.arstechnica.com/arstechnica/index")]},
+{id:"health",e:"🩺",n:"Health",feeds:[F("NPR","https://feeds.npr.org/1128/rss.xml"),F("CBS News","https://www.cbsnews.com/latest/rss/health")]},
+{id:"science",e:"🔬",n:"Science",feeds:[F("NPR","https://feeds.npr.org/1007/rss.xml"),GT("SCIENCE")]},
+{id:"food",e:"🍽️",n:"Food & cooking",feeds:[F("NPR","https://feeds.npr.org/1053/rss.xml"),GN("recipes cooking")]},
+{id:"home",e:"🏡",n:"Home & garden",feeds:[GN("home improvement"),GN("gardening tips")]},
+{id:"travel",e:"✈️",n:"Travel",feeds:[GN("travel tips"),GN("road trips national parks")]},
+{id:"cars",e:"🚗",n:"Cars & trucks",feeds:[GN("new cars trucks review"),GN("electric vehicles")]},
+{id:"gaming",e:"🎮",n:"Gaming",feeds:[GN("video games")]},
+{id:"outdoors",e:"🎣",n:"Outdoors",feeds:[GN("fishing camping hunting"),GN("hiking")]},
+{id:"pets",e:"🐾",n:"Pets",feeds:[GN("dogs cats pet care")]}
+];
+var SRC_COLORS=["#B0292B","#1A5FB4","#2E7D32","#6A1B9A","#E65100","#00695C","#AD1457","#37474F"];
+function srcColor(n){var h=0;for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))>>>0;return SRC_COLORS[h%SRC_COLORS.length];}
+
+var enabled=null;
+try{enabled=JSON.parse(ls("gz-topics")||"null");}catch(e){}
+if(!Array.isArray(enabled))enabled=T.filter(function(t){return t.on;}).map(function(t){return t.id;});
+enabled=enabled.filter(function(id){return T.some(function(t){return t.id===id;});});
+function saveTopics(){ls("gz-topics",JSON.stringify(enabled));}
+var localCity=ls("gz-local");if(localCity===null||!CITIES[+localCity]){var wc=ls("gz-city");localCity=(wc&&CITIES[+wc])?wc:"0";}
+
+function lget(k,mins){try{var o=JSON.parse(localStorage.getItem(k));if(o&&Date.now()-o.t<mins*60000)return o.v;}catch(e){}return null;}
+function lset(k,v){try{localStorage.setItem(k,JSON.stringify({t:Date.now(),v:v}));}catch(e){}}
+function fetchJSON(url){
+  var ctl=("AbortController" in window)?new AbortController():null;
+  var to=setTimeout(function(){if(ctl)ctl.abort();},10000);
+  return fetch(url,ctl?{signal:ctl.signal}:{}).then(function(r){clearTimeout(to);if(!r.ok)throw new Error(r.status);return r.json();});
+}
+function loadFeed(f,t){
+  return fetchJSON("https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(f.url)).then(function(j){
+    var out=[];
+    (j.items||[]).slice(0,f.max||6).forEach(function(it){
+      var link=safeLink(it.link),title=String(it.title||"");if(!link||!title)return;
+      var src=f.name;
+      if(f.gn){var i=title.lastIndexOf(" - ");if(i>10){src=title.slice(i+3).trim();title=title.slice(0,i).trim();}else src="Google News";}
+      if(t.local&&src&&f.name)src=src;
+      var tm=Date.parse(String(it.pubDate||"").replace(" ","T")+"Z");
+      out.push({kind:"news",id:link,url:link,title:title,img:safeImg(it.thumbnail)||safeImg(it.enclosure&&it.enclosure.link),src:src||"News",color:srcColor(src||"News"),t:isNaN(tm)?0:tm,topic:t.id});
+    });
+    if(!out.length)throw new Error("empty");
+    return out;
+  });
+}
+var renderTimer=null;function later(){clearTimeout(renderTimer);renderTimer=setTimeout(render,60);}
+function loadTopic(t){
+  var city=CITIES[+localCity];
+  var feeds=t.local?[{name:"",url:"https://news.google.com/rss/headlines/section/geo/"+encodeURIComponent(city[0])+"?hl=en-US&gl=US&ceid=US:en",gn:1,max:10}]:t.feeds;
+  var key="gz-c-"+t.id+(t.local?"-"+city[0]:"");
+  var c=lget(key,20);
+  if(c){state.topics[t.id]=c;state.done[t.id]=true;later();return;}
+  var ok=0,all=[];
+  Promise.all(feeds.map(function(f){return loadFeed(f,t).then(function(x){ok++;all=all.concat(x);}).catch(function(){});})).then(function(){
+    all.sort(function(a,b){return b.t-a.t;});
+    state.topics[t.id]=all;state.done[t.id]=true;state.failed[t.id]=(ok===0);
+    if(ok>0)lset(key,all);
+    later();
+  });
+}
+function loadAll(){enabled.forEach(function(id){var t=T.filter(function(x){return x.id===id;})[0];if(t&&!state.done[id])loadTopic(t);});}
+
+var LEAGUES=[{n:"NFL",p:"football/nfl"},{n:"NBA",p:"basketball/nba"},{n:"NHL",p:"hockey/nhl"},{n:"MLB",p:"baseball/mlb"},{n:"College football",p:"football/college-football"},{n:"MLS",p:"soccer/usa.1"}];
+
+function loadSports(){
+  var done=0,all=[];
+  LEAGUES.forEach(function(lg){
+    getJSON("https://site.api.espn.com/apis/site/v2/sports/"+lg.p+"/scoreboard","sp"+lg.p,2).then(function(j){
+      var got=0;
+      (j.events||[]).forEach(function(e){
+        if(got>=2)return;
+        var cs=(e.competitions&&e.competitions[0]&&e.competitions[0].competitors)||[];
+        var h=cs.filter(function(x){return x.homeAway==="home";})[0],w=cs.filter(function(x){return x.homeAway==="away";})[0];
+        if(!h||!w)return;
+        var type=(e.status&&e.status.type)||{},link=e.links&&e.links[0]&&e.links[0].href;
+        if(!(link&&/^https:\/\/(www\.)?espn\.com\//.test(link)))link="https://www.espn.com/";
+        all.push({kind:"sport",id:e.id?("espn"+lg.p+e.id):link,url:link,league:lg.n,away:w,home:h,state:type.state||"pre",detail:type.shortDetail||"",rank:type.state==="in"?0:type.state==="post"?1:2});got++;
+      });
+    }).catch(function(){}).then(function(){
+      done++;if(done===LEAGUES.length){all.sort(function(a,b){return a.rank-b.rank;});state.sports=all.slice(0,8);state.sportsDone=true;render();}
+    });
+  });
+}
+
+/* ---------- card builders ---------- */
+function actions(meta,item){
+  meta.appendChild(el("span",null,"sp"));
+  var like=el("button",null,"ic");like.type="button";like.innerHTML=ICON.heart;like.setAttribute("aria-label","Save");like.setAttribute("aria-pressed",liked.indexOf(item.id)>-1);
+  like.onclick=function(e){e.preventDefault();var i=liked.indexOf(item.id);if(i>-1)liked.splice(i,1);else liked.push(item.id);ls("gz-liked",JSON.stringify(liked.slice(-200)));like.setAttribute("aria-pressed",i===-1);};
+  var sh=el("button",null,"ic");sh.type="button";sh.innerHTML=ICON.share;sh.setAttribute("aria-label","Share");
+  sh.onclick=function(e){e.preventDefault();share(item);};
+  var mo=el("button",null,"ic");mo.type="button";mo.innerHTML=ICON.more;mo.setAttribute("aria-label","More options");
+  mo.onclick=function(e){e.preventDefault();e.stopPropagation();menu(mo,item);};
+  meta.appendChild(like);meta.appendChild(sh);meta.appendChild(mo);
+}
+function share(item){
+  var u=item.url;
+  if(navigator.share){navigator.share({title:item.title||"Gerzsi",url:u}).catch(function(){});return;}
+  try{navigator.clipboard.writeText(u).then(function(){toast("Link copied");},function(){toast(u);});}catch(e){toast(u);}
+}
+var tt;function toast(t){var x=$("toast");x.textContent=t;x.hidden=false;clearTimeout(tt);tt=setTimeout(function(){x.hidden=true;},2200);}
+function closeMenu(){if(state.openMenu){state.openMenu.remove();state.openMenu=null;}}
+function menu(btn,item){
+  closeMenu();var m=el("div",null,"menu");
+  var h=el("button","Hide this card");h.type="button";h.onclick=function(){hidden.push(item.id);ls("gz-hidden",JSON.stringify(hidden.slice(-300)));closeMenu();render();};
+  m.appendChild(h);btn.closest(".card").appendChild(m);state.openMenu=m;
+}
+document.addEventListener("click",closeMenu);
+function metaRow(avText,avColor,name,time,item,isAmz){
+  var m=el("div",null,"meta");var a=el("span",avText,"av");a.style.background=avColor;m.appendChild(a);
+  m.appendChild(el("span",name,"src"));if(time)m.appendChild(el("span","· "+time));
+  actions(m,item);return m;
+}
+function newsCard(it,big){
+  var c=el("article",null,"card");
+  var a=el("a",null,big?"body lead":"body");a.href=it.url;a.target="_blank";a.rel="noopener";
+  if(big){a.appendChild(img(it.img,"hero"));a.appendChild(el("span",it.title,"title"));}
+  else{var r=el("div",null,"row"+(it.img?"":" noimg"));r.appendChild(el("span",it.title,"title"));if(it.img)r.appendChild(img(it.img));a.appendChild(r);}
+  c.appendChild(a);c.appendChild(metaRow(it.src.charAt(0),it.color,it.src,ago(it.t),it));return c;
+}
+function teamRow(c,final,other,started){
+  var r=el("div",null,"tm");var tm=c.team||{};var lg=safeImg(tm.logo);if(lg)r.appendChild(img(lg));
+  r.appendChild(el("span",tm.abbreviation||tm.shortDisplayName||"?"));
+  r.appendChild(el("span",started&&c.score!=null?String(c.score):"","sc"));
+  if(final&&Number(c.score)<Number(other.score))r.className+=" lose";return r;
+}
+function sportCard(it){
+  var c=el("article",null,"card");var a=el("a",null,"body");a.href=it.url;a.target="_blank";a.rel="noopener";
+  var started=it.state!=="pre",final=it.state==="post";
+  var s=el("div",null,"score");var tms=el("div");
+  tms.appendChild(teamRow(it.away,final,it.home,started));tms.appendChild(teamRow(it.home,final,it.away,started));
+  s.appendChild(tms);s.appendChild(el("div",it.detail,"st"));a.appendChild(s);c.appendChild(a);
+  var item={id:it.id,url:it.url,title:it.league+": "+(it.away.team&&it.away.team.abbreviation)+" at "+(it.home.team&&it.home.team.abbreviation)};
+  c.appendChild(metaRow("E","#D00A12","ESPN · "+it.league,"",item));return c;
+}
+function shopCard(x,i){
+  var c=el("article",null,"card shop");var a=el("a",null,"body");a.href=search(x[2]);a.target="_blank";a.rel="sponsored nofollow noopener";
+  var t=el("div",null,"tile");t.style.background=TILE[i%TILE.length];t.appendChild(el("span",x[0],"em"));
+  var d=el("div");d.appendChild(el("b",x[1]));d.appendChild(el("span","Popular on Amazon today"));t.appendChild(d);a.appendChild(t);c.appendChild(a);
+  var item={id:"shop"+x[2],url:search(x[2]),title:x[1]+" on Amazon"};
+  c.appendChild(metaRow("a","#FF9A1F","Amazon · today's pick","",item));return c;
+}
+
+/* ---------- compose + render ---------- */
+var PATTERN=["n","n","p","n","s","n","n","s","p","n","n","s"];
+function newsSequence(only){
+  var qs=[];
+  enabled.forEach(function(id){
+    if(only&&id!==only)return;
+    var arr=(state.topics[id]||[]).filter(function(x){return hidden.indexOf(x.id)<0;});
+    qs.push({id:id,a:arr.slice(0,8)});
+  });
+  var out=[],seen={},more=true,r=0;
+  while(more&&r<10){more=false;
+    qs.forEach(function(q){var it=q.a[r];if(it){more=true;var k=it.title.toLowerCase();if(!seen[k]){seen[k]=1;out.push(it);}}});
+    r++;}
+  return out;
+}
+function compose(){
+  var f=state.filter,news=newsSequence();
+  var sports=state.sports.filter(function(x){return hidden.indexOf(x.id)<0;});
+  var shop=picks.map(function(x,i){return {kind:"shop",x:x,i:i,id:"shop"+x[2]};}).filter(function(x){return hidden.indexOf(x.id)<0;});
+  if(f==="news")return news;
+  if(f==="shop")return shop;
+  if(f==="sports"){
+    var sn=newsSequence("sports"),out=[],i=0;
+    while(i<sports.length||i<sn.length){if(sports[i])out.push(sports[i]);if(sn[i])out.push(sn[i]);i++;}
+    return out;
+  }
+  var q={n:news.slice(),p:sports.slice(),s:shop.slice()},out2=[],guard=0;
+  while((q.n.length||q.p.length||q.s.length)&&guard++<400){
+    var k=PATTERN[out2.length%PATTERN.length];if(!q[k].length){k=q.n.length?"n":q.s.length?"s":"p";}
+    out2.push(q[k].shift());
+  }
+  return out2;
+}
+function render(){
+  closeMenu();
+  var feed=$("feed");feed.innerHTML="";
+  var f=state.filter,items=compose();
+  var pending=enabled.some(function(id){return !state.done[id];});
+  var anyNews=items.some(function(x){return x.kind==="news";});
+  if(pending&&!anyNews&&(f==="all"||f==="news")){feed.appendChild(el("div",null,"sk"));feed.appendChild(el("div",null,"sk"));}
+  var shown=items.slice(0,state.limit),bigIdx=0;
+  shown.forEach(function(it){
+    if(it.kind==="news"){var big=!!it.img&&(bigIdx%3===0);feed.appendChild(newsCard(it,big));bigIdx++;}
+    else if(it.kind==="sport")feed.appendChild(sportCard(it));
+    else feed.appendChild(shopCard(it.x,it.i));
+  });
+  var allDone=!pending,allFail=enabled.length&&enabled.every(function(id){return state.failed[id];});
+  if(allDone&&allFail&&(f==="all"||f==="news")){
+    var n=el("div",null,"note");n.appendChild(document.createTextNode("Headlines didn't load. Open "));
+    [["NPR","https://www.npr.org/"],["CBS News","https://www.cbsnews.com/"],["ABC News","https://abcnews.go.com/"],["BBC","https://www.bbc.com/news/us-and-canada"]].forEach(function(s,i){if(i)n.appendChild(document.createTextNode(", "));var a=el("a",s[0]);a.href=s[1];a.target="_blank";a.rel="noopener";n.appendChild(a);});
+    n.appendChild(document.createTextNode("."));feed.insertBefore(n,feed.firstChild);
+  }
+  if(state.sportsDone&&!state.sports.length&&f==="sports"){var sn2=el("div",null,"note");sn2.appendChild(document.createTextNode("No games to show right now. "));var a2=el("a","See scores on ESPN");a2.href="https://www.espn.com/";a2.target="_blank";a2.rel="noopener";sn2.appendChild(a2);feed.appendChild(sn2);}
+  if(items.length>shown.length){var b=el("button","Show more","more");b.type="button";b.onclick=function(){state.limit+=12;render();};feed.appendChild(b);}
+}
+
+/* ---------- filters + customize ---------- */
+(function(){
+  var F2=[["all","For you"],["news","News"],["sports","Sports"],["shop","Shop"]],box=$("filters"),cust=$("custom");
+  if(["all","news","sports","shop"].indexOf(state.filter)<0)state.filter="all";
+  function paint(){
+    box.innerHTML="";
+    F2.forEach(function(x){var b=el("button",x[1]);b.type="button";b.setAttribute("aria-pressed",state.filter===x[0]);b.onclick=function(){state.filter=x[0];state.limit=12;ls("gz-filter",x[0]);paint();render();};box.appendChild(b);});
+    var g=el("button","⚙ Customize","gear");g.type="button";g.setAttribute("aria-expanded",!cust.hidden);
+    g.onclick=function(){cust.hidden=!cust.hidden;g.setAttribute("aria-expanded",!cust.hidden);if(!cust.hidden)buildCustom();};box.appendChild(g);
+  }
+  function buildCustom(){
+    cust.innerHTML="";cust.appendChild(el("h3","Pick what you want to see"));
+    cust.appendChild(el("p","Your choices are saved on this device."));
+    var tp=el("div",null,"topics");
+    T.forEach(function(t){
+      var b=el("button",t.e+" "+t.n);b.type="button";b.setAttribute("aria-pressed",enabled.indexOf(t.id)>-1);
+      b.onclick=function(){
+        var i=enabled.indexOf(t.id);
+        if(i>-1)enabled.splice(i,1);else{enabled.push(t.id);if(!state.done[t.id])loadTopic(t);}
+        saveTopics();b.setAttribute("aria-pressed",i===-1);render();
+      };
+      tp.appendChild(b);
+    });
+    cust.appendChild(tp);
+    var loc=el("div",null,"loc");loc.appendChild(el("span","Local news from"));
+    var sel=document.createElement("select");sel.setAttribute("aria-label","City for local news");
+    CITIES.forEach(function(c,i){var o=el("option",c[0]);o.value=i;sel.appendChild(o);});
+    sel.value=localCity;
+    sel.onchange=function(){localCity=sel.value;ls("gz-local",localCity);delete state.topics.local;delete state.done.local;delete state.failed.local;if(enabled.indexOf("local")<0){enabled.push("local");saveTopics();buildCustom();}loadTopic(T[1]);render();};
+    loc.appendChild(sel);cust.appendChild(loc);
+  }
+  paint();
+})();
+
+/* ---------- popular sites ---------- */
+(function(){
+  var W=[["YouTube","https://www.youtube.com/"],["Gmail","https://mail.google.com/"],["Facebook","https://www.facebook.com/"],["Instagram","https://www.instagram.com/"],["Reddit","https://www.reddit.com/"],["Netflix","https://www.netflix.com/"],["ESPN","https://www.espn.com/"],["Weather.com","https://weather.com/"],["Walmart","https://www.walmart.com/"],["Target","https://www.target.com/"],["Pinterest","https://www.pinterest.com/"],["Maps","https://www.google.com/maps"]];
+  var b=$("sites");W.forEach(function(x){var a=el("a",x[0]);a.href=x[1];a.target="_blank";a.rel="noopener";b.appendChild(a);});
+})();
+
+mode(ls("gz-mode")==="web"?"web":"amz");
+render();loadAll();loadSports();
+})();
+</script>
+</body>
+</html>
