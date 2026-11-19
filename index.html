@@ -8,17 +8,17 @@
 <meta name="description" content="Your daily start page: search Amazon, then scroll today's headlines, scores and popular picks.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#1D1E26;--surface:#262833;--field:#2C2E3A;--line:#3A3C4A;--text:#E9EAEE;--muted:#A5A9B8;--link:#8AB4F8;
   --mark:#EBC9B5;--shop:#FF9A1F;--shop-ink:#2A1700;
-  --font:"Figtree","Google Sans","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+  --font:"Plus Jakarta Sans","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
 }
 @media(prefers-color-scheme:light){:root{--bg:#FFFFFF;--surface:#F4F5F8;--field:#F0F2F6;--line:#DCDFE6;--text:#1D1F27;--muted:#5E6474;--link:#1A59D6;--mark:#B8613B}}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.4}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.5;font-optical-sizing:auto;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
 :focus-visible{outline:3px solid var(--link);outline-offset:2px;border-radius:10px}
@@ -26,7 +26,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 
 /* header + search */
 .top{display:flex;justify-content:space-between;align-items:center;padding:26px 20px 14px}
-.mark{font-size:2.9rem;font-weight:600;letter-spacing:-.04em;color:var(--mark);line-height:1}
+.mark{font-size:2.8rem;font-weight:700;letter-spacing:-.045em;color:var(--mark);line-height:1}
 .mark small{font-size:.5em;margin-left:4px;letter-spacing:0}
 .me{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-size:1.5rem;background:var(--surface);border:3px solid transparent;background-clip:padding-box;box-shadow:0 0 0 3px #4285F4 inset;}
 .me{box-shadow:none;border:3px solid;border-color:#34A853 #FBBC05 #EA4335 #4285F4}
@@ -38,6 +38,16 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .bar input::placeholder{color:var(--muted)}
 .bar .go{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--text);color:var(--bg)}
 svg{display:block}
+
+
+.hero{background:radial-gradient(95% 100% at 50% 0%,var(--glow,transparent),transparent 72%)}
+.greet{padding:6px 20px 16px}
+.g1{font-size:1.95rem;font-weight:700;letter-spacing:-.035em;line-height:1.1}
+.g2{color:var(--muted);font-size:1.08rem;margin-top:6px;max-width:34em}
+.fx{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:2}
+.fx span{position:absolute;top:-8vh;opacity:.55;animation:fall linear infinite;will-change:transform}
+@keyframes fall{to{transform:translate3d(var(--dx,0),112vh,0) rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.fx{display:none}}
 
 /* top cards row */
 .strip{display:flex;gap:12px;overflow-x:auto;padding:18px 20px 6px;scrollbar-width:none;scroll-snap-type:x proximity}
@@ -76,10 +86,10 @@ svg{display:block}
 .card{display:block;border-bottom:1px solid var(--line);position:relative}
 .card .body{display:block;padding:0}
 .lead img.hero{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:var(--surface)}
-.lead .title{display:block;padding:16px 20px 4px;font-size:1.5rem;font-weight:500;line-height:1.25;letter-spacing:-.01em}
+.lead .title{display:block;padding:16px 20px 4px;font-size:1.4rem;font-weight:700;line-height:1.28;letter-spacing:-.02em}
 .row{display:grid;grid-template-columns:minmax(0,1fr) 104px;gap:16px;padding:20px 20px 4px;align-items:start}
 .row.noimg{grid-template-columns:1fr}
-.row .title{font-size:1.18rem;font-weight:500;line-height:1.3}
+.row .title{font-size:1.1rem;font-weight:600;line-height:1.35;letter-spacing:-.01em}
 .row img{width:104px;height:104px;object-fit:cover;border-radius:18px;background:var(--surface)}
 .title{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .meta{display:flex;align-items:center;gap:10px;padding:14px 20px 18px;font-size:.93rem;color:var(--muted)}
@@ -124,12 +134,15 @@ footer a{color:var(--link)}
 </style>
 </head>
 <body>
+<div class="fx" id="fx" aria-hidden="true"></div>
 <div class="wrap">
 
+<div class="hero">
 <header class="top">
-  <a class="mark" href="https://gerzsi.com/" target="_blank" rel="noopener" aria-label="Gerzsi">Gerzsi<small>🦫</small></a>
-  <a class="me" href="https://gerzsi.com/" target="_blank" rel="noopener" aria-label="Visit gerzsi.com">🍳</a>
+  <a class="mark" href="https://gerzsi.com/" target="_blank" rel="noopener" aria-label="Gerzsi">Gerzsi<small id="memo">🦫</small></a>
+  <a class="me" href="https://gerzsi.com/" target="_blank" rel="noopener" aria-label="Visit gerzsi.com" id="me">🦫</a>
 </header>
+<div class="greet"><div class="g1" id="g1"></div><div class="g2" id="g2"></div></div>
 
 <form class="bar" id="form" action="https://www.amazon.com/s" method="get" target="_blank" rel="noopener">
   <input type="hidden" name="tag" id="tagf" value="gerzsi-20">
@@ -137,6 +150,7 @@ footer a{color:var(--link)}
   <input type="search" name="k" id="q" aria-label="Search" autocomplete="off" autofocus placeholder="Search Amazon">
   <button type="submit" class="go" aria-label="Search"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
 </form>
+</div>
 
 <div class="strip" id="strip">
   <div class="mini" id="c-wx"><span class="l">New York</span><div class="r"><span class="big">–</span></div></div>
@@ -243,6 +257,73 @@ function events(y){var tg=nth(y,10,4,4);return [
   var r=el("div",null,"r");r.appendChild(el("span",d===0?"Today":d+(d===1?" day":" days"),"big"));r.appendChild(el("span",ev.e,"em"));c.appendChild(r);
   c.href=ev.path?amz(ev.path):search(ev.q);
   $("c-deals").href=amz("/gp/goldbox");
+})();
+
+
+/* ---------- holiday theme + daily encouragement ---------- */
+(function(){
+  var y=now.getFullYear(),today=new Date(y,now.getMonth(),now.getDate());
+  function within(a,b){return today>=a&&today<=b;}
+  function rng(m1,d1,m2,d2){return within(new Date(y,m1-1,d1),new Date(y,m2-1,d2));}
+  function off(d,n){return new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);}
+  var tg=nth(y,10,4,4),es=easter(y),mom=nth(y,4,0,2),dad=nth(y,5,0,3),mem=lastDay(y,4,1);
+  var md=(today.getMonth()+1)*100+today.getDate();
+  var TH=[
+   [within(off(tg,1),off(tg,4)),{id:"blackfriday",e:"🛍️",p:["💸","🏷️"],m:"#F5C451",ml:"#B7791F",g:"rgba(245,196,81,.24)"}],
+   [within(new Date(y,10,1),tg),{id:"thanksgiving",e:"🦃",p:["🍂","🍁"],m:"#F4A259",ml:"#B5541B",g:"rgba(230,126,34,.28)"}],
+   [rng(12,1,12,26),{id:"christmas",e:"🎄",p:["❄️"],m:"#FF8F8F",ml:"#C62828",g:"rgba(198,40,40,.26)"}],
+   [today>=new Date(y,11,27)||today<=new Date(y,0,2),{id:"newyear",e:"🎆",p:["✨"],m:"#FFD36E",ml:"#A66F00",g:"rgba(255,211,110,.24)"}],
+   [rng(2,1,2,14),{id:"valentines",e:"💝",p:["💗"],m:"#FF9FC0",ml:"#C2185B",g:"rgba(233,30,99,.22)"}],
+   [rng(3,8,3,17),{id:"stpatricks",e:"🍀",p:["🍀"],m:"#7EE08A",ml:"#2E7D32",g:"rgba(46,125,50,.26)"}],
+   [within(off(es,-14),es),{id:"easter",e:"🐣",p:["🌷","🐣"],m:"#F7B2D9",ml:"#B3478A",g:"rgba(244,143,177,.24)"}],
+   [within(off(mom,-6),mom),{id:"mothersday",e:"💐",p:["🌸"],m:"#F7A8C8",ml:"#B03070",g:"rgba(244,143,177,.24)"}],
+   [within(off(dad,-6),dad),{id:"fathersday",e:"🧔",p:[],m:"#8AB4FF",ml:"#1E4DB7",g:"rgba(30,77,183,.2)"}],
+   [within(off(mem,-7),mem)||rng(6,26,7,4),{id:"usa",e:"🇺🇸",p:["⭐"],m:"#8AB4FF",ml:"#1E4DB7",g:"rgba(30,77,183,.26)"}],
+   [rng(10,10,10,31),{id:"halloween",e:"🎃",p:["🦇","🍂"],m:"#FFA24A",ml:"#B34700",g:"rgba(124,58,237,.28)"}],
+   [rng(8,10,9,6),{id:"school",e:"🎒",p:[],m:"#7FD1FF",ml:"#0B6BA8",g:"rgba(33,150,243,.2)"}],
+   [md>=1221||md<=319,{id:"winter",e:"❄️",p:["❄️"],m:"#9CD3FF",ml:"#1F6FB5",g:"rgba(100,181,246,.24)"}],
+   [md<=620,{id:"spring",e:"🌸",p:["🌸"],m:"#F4A6C8",ml:"#B03A7A",g:"rgba(244,143,177,.2)"}],
+   [md<=921,{id:"summer",e:"☀️",p:[],m:"#FFD166",ml:"#B26A00",g:"rgba(255,193,7,.24)"}],
+   [true,{id:"autumn",e:"🍂",p:["🍂"],m:"#F2A65A",ml:"#B5541B",g:"rgba(230,126,34,.22)"}]
+  ];
+  var th=TH.filter(function(x){return x[0];})[0][1];
+  document.documentElement.setAttribute("data-theme",th.id);
+  var mq=window.matchMedia?window.matchMedia("(prefers-color-scheme: dark)"):null;
+  function paint(){var dk=mq?mq.matches:true,r=document.documentElement.style;r.setProperty("--mark",dk?th.m:th.ml);r.setProperty("--glow",th.g);}
+  paint();if(mq&&mq.addEventListener)mq.addEventListener("change",paint);
+  $("memo").textContent=th.e;
+
+  /* gentle falling decoration (off for reduced motion) */
+  var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(th.p.length&&!reduce){
+    var fx=$("fx"),r=seedFrom(ymd);
+    for(var i=0;i<14;i++){
+      var sp=el("span",th.p[i%th.p.length]);
+      sp.style.left=Math.round(r()*98)+"%";sp.style.fontSize=(14+Math.round(r()*10))+"px";
+      sp.style.animationDuration=(16+Math.round(r()*14))+"s";sp.style.animationDelay="-"+Math.round(r()*24)+"s";
+      sp.style.setProperty("--dx",(Math.round(r()*80)-40)+"px");fx.appendChild(sp);
+    }
+  }
+
+  /* greeting + encouragement */
+  var h=now.getHours(),wd=now.getDay();
+  var MSG={
+   0:["Enjoy your Sunday. Recharge for the week ahead.","Slow down today. You've earned the rest.","Sunday reset: a good week starts tonight."],
+   1:["New week, fresh start. You've got this.","Monday is the hardest one. It gets easier from here.","Take it one step at a time today. You've got this."],
+   2:["Tuesday: you're already rolling. Keep it up!","One day down, and you're in the swing of it.","Steady wins the week. Keep going!"],
+   3:["Halfway there! The weekend is getting closer.","Wednesday: you're over the hump. Keep going!","The week is half done. You're doing great."],
+   4:["Tomorrow is Friday. Hang in there, the weekend is almost here!","Thursday: one more push and it's almost the weekend.","Almost there! Just one more day until Friday."],
+   5:["It's Friday! The weekend is almost here. You made it.","Friday at last! Finish strong, then rest.","Almost the weekend. You've earned it."],
+   6:["Happy Saturday! Relax, you've earned it.","Saturday is yours. Do something you love.","Take it easy today. You worked hard this week."]
+  };
+  var line=MSG[wd][ymd%3];
+  if(wd===5&&h>=17)line="The weekend starts now. Enjoy it, you earned it!";
+  if(wd===0&&h>=18)line="Rest up tonight. You've got a good week ahead.";
+  if(h<5)line="Get some rest soon. You're doing great.";
+  var SPECIAL={"New Year's":"Happy New Year!","Christmas":"Merry Christmas!","Super Bowl":"Happy Super Bowl Sunday!","Black Friday":"Happy Black Friday! The deals are live.","Cyber Monday":"Happy Cyber Monday! Today's deals are live.","Fourth of July":"Happy Fourth of July!"};
+  events(y).forEach(function(ev){if(ev.d.getTime()===today.getTime())line=SPECIAL[ev.n]||("Happy "+ev.n+"!");});
+  $("g1").textContent=h<5?"Up late?":h<12?"Good morning.":h<18?"Good afternoon.":"Good evening.";
+  $("g2").textContent=line;
 })();
 
 /* ---------- data helpers ---------- */
