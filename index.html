@@ -79,6 +79,9 @@ svg{display:block}
 .topics button{border:1.5px solid var(--line);border-radius:999px;padding:7px 14px;font-weight:500;font-size:.92rem;color:var(--muted)}
 .topics button[aria-pressed=true]{background:var(--text);color:var(--bg);border-color:var(--text)}
 .custom .loc{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:.92rem;color:var(--muted)}
+.custom .nm{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:.92rem;color:var(--muted);flex-wrap:wrap}
+.custom input{font:inherit;background:var(--field);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:7px 14px;width:12em;max-width:100%}
+.custom .nm button{font:inherit;background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;padding:4px}
 .custom select{font:inherit;background:var(--field);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:7px 12px}
 .filters .gear{margin-left:auto;border-style:dashed}
 
@@ -140,7 +143,7 @@ footer a{color:var(--link)}
 
 <div class="hero">
 <header class="top">
-  <a class="mark" href="https://gerzsi.com/" target="_blank" rel="noopener" aria-label="Gerzsi">Gerzsi<small id="memo">🦫</small></a>
+  <a class="mark" href="https://gerzsi.com/" target="_blank" rel="noopener" aria-label="Gerzsi"><span id="mname">Gerzsi</span><small id="memo">🦫</small></a>
   <a class="me" href="https://gerzsi.com/" target="_blank" rel="noopener" aria-label="Visit gerzsi.com" id="me">🦫</a>
 </header>
 <div class="greet"><div class="g1" id="g1"></div><div class="g2" id="g2"></div></div>
@@ -587,6 +590,16 @@ function render(){
   if(items.length>shown.length){var b=el("button","Show more","more");b.type="button";b.onclick=function(){state.limit+=12;render();};feed.appendChild(b);}
 }
 
+/* ---------- editable name ---------- */
+var NAME0="Gerzsi";
+function setName(v){
+  v=(v||"").replace(/\s+/g," ").trim().slice(0,20);
+  var n=v||NAME0;$("mname").textContent=n;document.querySelector(".mark").setAttribute("aria-label",n);
+  document.title=n+" – Amazon search, news, scores & weather";
+  return v;
+}
+setName(ls("gz-name"));
+
 /* ---------- filters + customize ---------- */
 (function(){
   var F2=[["all","For you"],["news","News"],["sports","Sports"],["shop","Shop"]],box=$("filters"),cust=$("custom");
@@ -611,6 +624,11 @@ function render(){
       tp.appendChild(b);
     });
     cust.appendChild(tp);
+    var nm=el("div",null,"nm");nm.appendChild(el("span","Page name"));
+    var inp=document.createElement("input");inp.type="text";inp.maxLength=20;inp.placeholder=NAME0;inp.value=ls("gz-name")||"";inp.setAttribute("aria-label","Page name");
+    inp.oninput=function(){ls("gz-name",setName(inp.value));};
+    var rs=el("button","Reset");rs.type="button";rs.onclick=function(){inp.value="";ls("gz-name","");setName("");};
+    nm.appendChild(inp);nm.appendChild(rs);cust.appendChild(nm);
     var loc=el("div",null,"loc");loc.appendChild(el("span","Local news from"));
     var sel=document.createElement("select");sel.setAttribute("aria-label","City for local news");
     CITIES.forEach(function(c,i){var o=el("option",c[0]);o.value=i;sel.appendChild(o);});
